@@ -1,6 +1,10 @@
 package com.example.coderscodes.todos;
 
 
+import com.example.coderscodes.todos.controllers.UserController;
+import com.example.coderscodes.todos.repositories.UserRepository;
+import com.example.coderscodes.todos.services.UserService;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -8,11 +12,21 @@ import java.util.List;
 import java.util.Scanner;
 
 public class TodoManager {
+    final UserController userController;
+    private static Scanner scanner = new Scanner(System.in);
      static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.mm.yyyy");
      static List<Todo> todos = new ArrayList<>();
-    static List<Todo> overDueTodos ;
+     List<Todo> overDueTodos ;
      private int counter;
-    static void showOverDueTodos(){
+
+    public TodoManager() {
+        UserService userService = new UserService(new UserRepository());
+        this.userController = new UserController(userService);
+//        this.overDueTodos = overDueTodos;
+
+    }
+
+     void showOverDueTodos(){
         overDueTodos = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
         for(Todo t:todos){
@@ -101,12 +115,52 @@ public class TodoManager {
          System.out.println("Select option");
      }
 
+    void start() {
+        boolean flag = true;
+        while (flag) {
+            System.out.println("User Authorization App Menu:");
+            System.out.println("1. Login");
+            System.out.println("2. Register");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+//            int choice = scanner.nextInt();
+//            scanner.nextLine(); // Consume newline character
+            // Validate input
+            int choice;
+            while (true) {
+                try {
+                    choice = Integer.parseInt(scanner.nextLine());
+                    if (choice >= 1 && choice <= 3) {
+                        break; // Valid input, break out of the loop
+                    } else {
+                        System.out.println("Invalid choice. Please enter a number between 1 and 3.");
+                        System.out.print("Enter your choice: ");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid choice. Please enter a valid number.");
+                    System.out.print("Enter your choice: ");
+                }
+            }
+            switch (choice) {
+                case 1:
+                    userController.authenticateUser();
+                    break;
+                case 2:
+                    userController.registerUser();
+                    break;
+                case 3:
+                    System.out.println("Exiting...");
+                    flag = false;
+//                    break;
+                    System.exit(1);
+                default:
+                    System.out.println("Invalid choice. Please enter a number between 1 and 3.");
+            }
+        }
+    }
     public static void main(String[] args) {
 
-//        LocalDateTime now = LocalDateTime.now();
-//        LocalDateTime pl = now.plusMinutes(1);
-//        System.out.println(pl.isAfter(now));
-//        System.exit(1);
+        new TodoManager().start();
 
         Scanner input = new Scanner(System.in);
         boolean flag =true;
@@ -129,7 +183,7 @@ public class TodoManager {
                      showTodos();
                     break;
                 case '5':
-                    showOverDueTodos();
+//                    showOverDueTodos();
                     break;
                 case 'q':
                     flag = false;
